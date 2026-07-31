@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Envisioning Octa — tester</title>
+    <style>
+      @font-face {
+        font-family: "EnvisioningOcta";
+        src:
+          url("EnvisioningOcta-VF.woff2") format("woff2-variations"),
+          url("EnvisioningOcta-VF.ttf") format("truetype-variations");
+        font-weight: 100 900;
+        font-stretch: 75% 125%;
+        font-display: block;
+      }
+
+      /* Selection is always flat black or flat white, whichever the current
+         background is not. Anything tinted competes with the letterforms,
+         which is the one thing on this page you are trying to judge. */
+      :root {
+        --bg: #ccff66;
+        --fg: #000;
+        --sel: #000;
+        --sel-fg: #ccff66;
+        --ui: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      body.invert {
+        --bg: #000;
+        --fg: #ccff66;
+        --sel: #fff;
+        --sel-fg: #000;
+      }
+
+      body.mono {
+        --bg: #fff;
+        --fg: #000;
+        --sel: #000;
+        --sel-fg: #fff;
+      }
+
+      ::selection {
+        background: var(--sel);
+        color: var(--sel-fg);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--ui);
+        padding-bottom: 200px;
+        transition: background 0.15s, color 0.15s;
+      }
+
+      .type {
+        font-family: "EnvisioningOcta", sans-serif;
+        font-variation-settings: var(--vs);
+      }
+
+      /* ---------------------------------------------------------- header */
+
+      header {
+        padding: 28px clamp(16px, 4vw, 48px) 0;
+      }
+
+      .wordmark {
+        font-family: "EnvisioningOcta", sans-serif;
+        font-variation-settings: var(--vs);
+        font-size: clamp(40px, 9vw, 92px);
+        line-height: 1.05;
+        margin: 0;
+      }
+
+      .sub {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-top: 6px;
+      }
+
+      /* ------------------------------------------------------------ tabs */
+
+      nav {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        padding: 24px clamp(16px, 4vw, 48px) 0;
+        border-bottom: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+        margin-bottom: 28px;
+      }
+
+      nav button {
+        font: inherit;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: none;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        color: var(--fg);
+        opacity: 0.5;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      nav button[aria-selected="true"] {
+        opacity: 1;
+        border-bottom-color: var(--fg);
+      }
+
+      main {
+        padding: 0 clamp(16px, 4vw, 48px);
+      }
+
+      .panel[hidden] {
+        display: none;
+      }
+
+      .label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        margin: 0 0 10px;
+      }
+
+      /* ----------------------------------------------------------- edit */
+
+      #editor {
+        font-family: "EnvisioningOcta", sans-serif;
+        font-variation-settings: var(--vs);
+        font-size: var(--size);
+        line-height: var(--lh);
+        letter-spacing: var(--ls);
+        text-align: var(--align);
+        font-feature-settings: var(--feat);
+        width: 100%;
+        min-height: 40vh;
+        border: 0;
+        outline: 0;
+        background: none;
+        color: inherit;
+        overflow-wrap: break-word;
+      }
+
+      .presets {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .presets button,
+      .ghost {
+        font: inherit;
+        font-size: 11px;
+        background: none;
+        color: var(--fg);
+        border: 1px solid color-mix(in srgb, var(--fg) 30%, transparent);
+        border-radius: 999px;
+        padding: 5px 12px;
+        cursor: pointer;
+      }
+
+      .presets button:hover,
+      .ghost:hover {
+        background: color-mix(in srgb, var(--fg) 12%, transparent);
+      }
+
+      /* -------------------------------------------------------- ramps */
+
+      .row {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 6px 0;
+        border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent);
+      }
+
+      .row .tag {
+        flex: 0 0 130px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.5;
+      }
+
+      .row .spec {
+        font-family: "EnvisioningOcta", sans-serif;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+        letter-spacing: var(--ls);
+      }
+
+      /* --------------------------------------------------------- glyphs */
+
+      .glyphs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+        gap: 6px;
+      }
+
+      .cell {
+        border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+        background: none;
+        color: inherit;
+        padding: 4px;
+      }
+
+      .cell:hover {
+        background: color-mix(in srgb, var(--fg) 12%, transparent);
+      }
+
+      .cell .g {
+        font-family: "EnvisioningOcta", sans-serif;
+        font-variation-settings: var(--vs);
+        font-size: 34px;
+        line-height: 1;
+      }
+
+      .cell .cp {
+        font-size: 8px;
+        letter-spacing: 0.06em;
+        opacity: 0.45;
+      }
+
+      /* -------------------------------------------------------- controls */
+
+      .controls {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: color-mix(in srgb, var(--bg) 92%, var(--fg));
+        border-top: 1px solid color-mix(in srgb, var(--fg) 25%, transparent);
+        padding: 12px clamp(16px, 4vw, 48px);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 8px 22px;
+        backdrop-filter: blur(8px);
+      }
+
+      .ctl {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .ctl > span:first-child {
+        flex: 0 0 54px;
+        opacity: 0.6;
+      }
+
+      .ctl input[type="range"] {
+        flex: 1;
+        min-width: 60px;
+        accent-color: var(--fg);
+      }
+
+      .ctl output {
+        flex: 0 0 46px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .toggles {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .toggles .ghost[aria-pressed="true"] {
+        background: var(--fg);
+        color: var(--bg);
+      }
+
+      code#css {
+        margin-left: auto;
+        font-size: 10px;
+        opacity: 0.55;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="wordmark" id="wordmark">Envisioning Octa</h1>
+      <div class="sub" id="sub">loading…</div>
+    </header>
+
+    <nav id="tabs">
+      <button aria-selected="true" data-tab="edit">Type</button>
+      <button data-tab="weights">Weights</button>
+      <button data-tab="widths">Widths</button>
+      <button data-tab="sizes">Sizes</button>
+      <button data-tab="glyphs">Glyphs</button>
+      <button data-tab="text">Paragraph</button>
+    </nav>
+
+    <main>
+      <section class="panel" data-panel="edit">
+        <div class="presets" id="presets"></div>
+        <div id="editor" contenteditable="true" spellcheck="false">
+          Envisioning the future
+        </div>
+      </section>
+
+      <section class="panel" data-panel="weights" hidden>
+        <p class="label">All nine weights at the current width and size</p>
+        <div id="weightRamp"></div>
+      </section>
+
+      <section class="panel" data-panel="widths" hidden>
+        <p class="label">Width axis at the current weight</p>
+        <div id="widthRamp"></div>
+      </section>
+
+      <section class="panel" data-panel="sizes" hidden>
+        <p class="label">Size waterfall at the current axis settings</p>
+        <div id="sizeRamp"></div>
+      </section>
+
+      <section class="panel" data-panel="glyphs" hidden>
+        <p class="label">
+          Every glyph in the font. Click one to append it to the Type panel.
+        </p>
+        <div class="glyphs" id="glyphGrid"></div>
+      </section>
+
+      <section class="panel" data-panel="text" hidden>
+        <p class="label">Running text, for reading and spacing</p>
+        <div id="paragraphs"></div>
+      </section>
+    </main>
+
+    <div class="controls">
+      <label class="ctl">
+        <span>wght</span>
+        <input id="wght" type="range" min="100" max="900" step="1" value="400" />
+        <output id="wghtOut">400</output>
+      </label>
+      <label class="ctl">
+        <span>wdth</span>
+        <input id="wdth" type="range" min="75" max="125" step="1" value="100" />
+        <output id="wdthOut">100</output>
+      </label>
+      <label class="ctl">
+        <span>size</span>
+        <input id="size" type="range" min="8" max="200" step="1" value="64" />
+        <output id="sizeOut">64</output>
+      </label>
+      <label class="ctl">
+        <span>leading</span>
+        <input id="lh" type="range" min="0.8" max="2.4" step="0.05" value="1.2" />
+        <output id="lhOut">1.20</output>
+      </label>
+      <label class="ctl">
+        <span>tracking</span>
+        <input id="ls" type="range" min="-0.08" max="0.4" step="0.005" value="0" />
+        <output id="lsOut">0</output>
+      </label>
+
+      <div class="toggles">
+        <button class="ghost" id="kern" aria-pressed="true">kerning</button>
+        <button class="ghost" id="align">align: left</button>
+        <button class="ghost" id="theme">theme: lime</button>
+        <button class="ghost" id="reset">reset</button>
+        <code id="css"></code>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const root = document.documentElement;
+
+      const DEFAULTS = { wght: 400, wdth: 100, size: 64, lh: 1.2, ls: 0 };
+      const ALIGNMENTS = ["left", "center", "right"];
+      const THEMES = [
+        ["lime", ""],
+        ["inverted", "invert"],
+        ["mono", "mono"],
+      ];
+
+      const PRESETS = [
+        ["Wordmark", "Envisioning"],
+        ["Pangram", "Sphinx of black quartz, judge my vow"],
+        ["Caps", "ENVISIONING THE FUTURE"],
+        ["Numerals", "0123456789 €1,240.50 (12%) 2026"],
+        ["Punctuation", "\"Wait,\" she said. Really? Yes — 100%!"],
+        ["Tricky", "Illlio0O S5 rn/m vv/w 1lI"],
+        ["Accents", "Ça va? Über schön, naïve résumé"],
+        ["Headline", "Signals from the near future"],
+      ];
+
+      const PARAGRAPH =
+        "Envisioning is a technology research institute mapping how emerging " +
+        "technologies reshape the way we live and work. We track signals, " +
+        "build vocabularies, and turn scattered evidence into maps that " +
+        "people can actually reason with. 0123456789.";
+
+      let alignIndex = 0;
+      let themeIndex = 0;
+      let kerning = true;
+      let data = null;
+
+      // ------------------------------------------------------------ state
+
+      function settings() {
+        return {
+          wght: +$("wght").value,
+          wdth: +$("wdth").value,
+          size: +$("size").value,
+          lh: +$("lh").value,
+          ls: +$("ls").value,
+        };
+      }
+
+      function apply() {
+        const s = settings();
+        const vs = `"wght" ${s.wght}, "wdth" ${s.wdth}`;
+
+        root.style.setProperty("--vs", vs);
+        root.style.setProperty("--size", s.size + "px");
+        root.style.setProperty("--lh", s.lh);
+        root.style.setProperty("--ls", s.ls + "em");
+        root.style.setProperty("--align", ALIGNMENTS[alignIndex]);
+        root.style.setProperty("--feat", kerning ? '"kern" 1' : '"kern" 0');
+
+        $("wghtOut").textContent = s.wght;
+        $("wdthOut").textContent = s.wdth;
+        $("sizeOut").textContent = s.size;
+        $("lhOut").textContent = s.lh.toFixed(2);
+        $("lsOut").textContent = s.ls === 0 ? "0" : s.ls.toFixed(3);
+
+        $("css").textContent = `font-variation-settings: ${vs};`;
+
+        renderRamps();
+      }
+
+      // ------------------------------------------------------------ ramps
+
+      function row(tag, styleText, sample, sizePx) {
+        const el = document.createElement("div");
+        el.className = "row";
+        const t = document.createElement("div");
+        t.className = "tag";
+        t.textContent = tag;
+        const s = document.createElement("div");
+        s.className = "spec";
+        s.style.cssText = styleText;
+        if (sizePx) s.style.fontSize = sizePx + "px";
+        s.textContent = sample;
+        el.append(t, s);
+        return el;
+      }
+
+      function sampleText() {
+        const typed = $("editor").textContent.trim();
+        return typed || "Envisioning";
+      }
+
+      function renderRamps() {
+        if (!data) return;
+        const s = settings();
+        const text = sampleText();
+
+        const weights = $("weightRamp");
+        weights.textContent = "";
+        for (const w of data.weights) {
+          weights.append(
+            row(
+              `${w.value} ${w.name}`,
+              `font-variation-settings: "wght" ${w.value}, "wdth" ${s.wdth}`,
+              text,
+              s.size
+            )
+          );
+        }
+
+        const widths = $("widthRamp");
+        widths.textContent = "";
+        for (let v = 75; v <= 125; v += 5) {
+          const named = data.widths.find((x) => x.value === v);
+          widths.append(
+            row(
+              named ? `${v} ${named.name}` : String(v),
+              `font-variation-settings: "wght" ${s.wght}, "wdth" ${v}`,
+              text,
+              s.size
+            )
+          );
+        }
+
+        const sizes = $("sizeRamp");
+        sizes.textContent = "";
+        for (const px of [96, 72, 56, 42, 32, 24, 18, 16, 14, 12, 10, 9]) {
+          sizes.append(
+            row(
+              px + " px",
+              `font-variation-settings: "wght" ${s.wght}, "wdth" ${s.wdth}`,
+              text,
+              px
+            )
+          );
+        }
+
+        const paras = $("paragraphs");
+        paras.textContent = "";
+        for (const px of [28, 20, 16, 13]) {
+          const p = document.createElement("p");
+          p.className = "type";
+          p.style.fontSize = px + "px";
+          p.style.lineHeight = s.lh;
+          p.style.letterSpacing = s.ls + "em";
+          p.style.maxWidth = "62ch";
+          p.textContent = `${px}px — ${PARAGRAPH}`;
+          paras.append(p);
+        }
+      }
+
+      // ----------------------------------------------------------- glyphs
+
+      function renderGlyphs() {
+        const grid = $("glyphGrid");
+        grid.textContent = "";
+        for (const g of data.glyphs) {
+          const cell = document.createElement("button");
+          cell.className = "cell";
+          cell.title = `${g.name} · U+${g.cp.toString(16).toUpperCase().padStart(4, "0")}`;
+
+          const glyph = document.createElement("div");
+          glyph.className = "g";
+          glyph.textContent = g.cp === 0x20 ? " " : g.label;
+
+          const cp = document.createElement("div");
+          cp.className = "cp";
+          cp.textContent = "U+" + g.cp.toString(16).toUpperCase().padStart(4, "0");
+
+          cell.append(glyph, cp);
+          cell.addEventListener("click", () => {
+            $("editor").textContent += g.cp === 0x20 ? " " : g.label;
+            selectTab("edit");
+            apply();
+          });
+          grid.append(cell);
+        }
+      }
+
+      // ------------------------------------------------------------- tabs
+
+      function selectTab(name) {
+        for (const b of $("tabs").children) {
+          b.setAttribute("aria-selected", String(b.dataset.tab === name));
+        }
+        for (const p of document.querySelectorAll(".panel")) {
+          p.hidden = p.dataset.panel !== name;
+        }
+      }
+
+      $("tabs").addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (b) selectTab(b.dataset.tab);
+      });
+
+      // --------------------------------------------------------- controls
+
+      for (const id of ["wght", "wdth", "size", "lh", "ls"]) {
+        $(id).addEventListener("input", apply);
+      }
+
+      $("editor").addEventListener("input", renderRamps);
+
+      $("kern").addEventListener("click", () => {
+        kerning = !kerning;
+        $("kern").setAttribute("aria-pressed", String(kerning));
+        apply();
+      });
+
+      $("align").addEventListener("click", () => {
+        alignIndex = (alignIndex + 1) % ALIGNMENTS.length;
+        $("align").textContent = "align: " + ALIGNMENTS[alignIndex];
+        apply();
+      });
+
+      $("theme").addEventListener("click", () => {
+        themeIndex = (themeIndex + 1) % THEMES.length;
+        const [name, cls] = THEMES[themeIndex];
+        document.body.className = cls;
+        $("theme").textContent = "theme: " + name;
+      });
+
+      $("reset").addEventListener("click", () => {
+        for (const [k, v] of Object.entries(DEFAULTS)) $(k).value = v;
+        alignIndex = 0;
+        $("align").textContent = "align: left";
+        kerning = true;
+        $("kern").setAttribute("aria-pressed", "true");
+        apply();
+      });
+
+      const presets = $("presets");
+      for (const [name, text] of PRESETS) {
+        const b = document.createElement("button");
+        b.textContent = name;
+        b.addEventListener("click", () => {
+          $("editor").textContent = text;
+          renderRamps();
+        });
+        presets.append(b);
+      }
+
+      // ------------------------------------------------------------- boot
+
+      fetch("glyphs.json")
+        .then((r) => r.json())
+        .then((json) => {
+          data = json;
+          $("wordmark").textContent = json.family;
+          document.title = json.family + " — tester";
+
+          const axes = json.axes
+            .map((a) => `${a.tag} ${a.min}–${a.max}`)
+            .join(" · ");
+          $("sub").textContent =
+            `${axes} · ${json.glyphs.length} glyphs · ` +
+            `${json.instances.length} named instances · ` +
+            `cap ${json.metrics.capHeight}/${json.metrics.upem}`;
+
+          for (const a of json.axes) {
+            const el = $(a.tag);
+            if (!el) continue;
+            el.min = a.min;
+            el.max = a.max;
+            el.value = a.default;
+          }
+
+          renderGlyphs();
+          apply();
+        })
+        .catch((err) => {
+          $("sub").textContent =
+            "could not load glyphs.json — serve this page over http, not file://";
+          console.error(err);
+        });
+
+      document.fonts.ready.then(() => {
+        if (!document.fonts.check('16px "EnvisioningOcta"')) {
+          $("sub").textContent = "FONT FAILED TO LOAD — check EnvisioningOcta-VF.woff2";
+        }
+      });
+    </script>
+  </body>
+</html>
