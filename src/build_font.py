@@ -560,7 +560,20 @@ def add_kerning(font: TTFont, data: dict, order: list) -> None:
 
     if not rules:
         return
-    fea = "\n".join(lines) + "\n\nfeature kern {\n" + "\n".join(rules) + "\n} kern;\n"
+
+    # Register under latn as well as DFLT. HarfBuzz falls back to DFLT when it
+    # cannot find the script, so browsers kern either way, but engines that
+    # look up latn directly (some Adobe and print pipelines) drop the feature
+    # entirely without this.
+    header = "languagesystem DFLT dflt;\nlanguagesystem latn dflt;\n"
+    fea = (
+        header
+        + "\n"
+        + "\n".join(lines)
+        + "\n\nfeature kern {\n"
+        + "\n".join(rules)
+        + "\n} kern;\n"
+    )
     addOpenTypeFeaturesFromString(font, fea)
     print(f"kerning: {pairs} class pairs from {len(left_classes)} void groups")
 
