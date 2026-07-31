@@ -30,10 +30,21 @@ check("axes", axes == {"wght": (100.0, 400.0, 900.0), "wdth": (100.0, 100.0, 125
 check("named instances", len(font["fvar"].instances) == 18, f"{len(font['fvar'].instances)}")
 
 cmap = font.getBestCmap()
-check("cmap coverage", len(cmap) == 154, f"{len(cmap)} codepoints")
-for ch in "AaZz0.,-?@€ÄéñÜ":
-    if ord(ch) not in cmap:
-        check(f"cmap has {ch!r}", False)
+
+# A count is brittle; what matters is that the languages we set type in work.
+REQUIRED = {
+    "ASCII": "".join(chr(c) for c in range(0x21, 0x7F)),
+    "Spanish": "ÁÉÍÓÚÜÑ¡¿áéíóúüñ",
+    "Portuguese": "ÁÂÃÀÇÉÊÍÓÔÕÚáâãàçéêíóôõúº",
+    "French": "ÀÂÇÈÉÊËÎÏÔÙÛÜŸàâçèéêëîïôùûüÿ",
+    "German": "ÄÖÜäöü",
+    "Nordic": "ÅØåø",
+    "Typographic": "“”‘’–—…·•«»",
+}
+for label, chars in REQUIRED.items():
+    missing = [c for c in chars if ord(c) not in cmap]
+    check(f"cmap covers {label}", not missing, f"missing {''.join(missing)}" if missing else f"{len(chars)} chars")
+print(f"      cmap total: {len(cmap)} codepoints")
 
 # Advance widths and left sidebearings must agree with the outlines.
 hmtx = font["hmtx"]

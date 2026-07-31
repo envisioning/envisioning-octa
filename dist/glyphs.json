@@ -674,6 +674,11 @@
    "label": "~"
   },
   {
+   "cp": 161,
+   "name": "uni00A1",
+   "label": "¡"
+  },
+  {
    "cp": 169,
    "name": "uni00A9",
    "label": "©"
@@ -694,6 +699,11 @@
    "label": "°"
   },
   {
+   "cp": 177,
+   "name": "uni00B1",
+   "label": "±"
+  },
+  {
    "cp": 178,
    "name": "uni00B2",
    "label": "²"
@@ -704,9 +714,24 @@
    "label": "³"
   },
   {
+   "cp": 183,
+   "name": "uni00B7",
+   "label": "·"
+  },
+  {
+   "cp": 186,
+   "name": "uni00BA",
+   "label": "º"
+  },
+  {
    "cp": 187,
    "name": "uni00BB",
    "label": "»"
+  },
+  {
+   "cp": 191,
+   "name": "uni00BF",
+   "label": "¿"
   },
   {
    "cp": 192,
@@ -734,6 +759,11 @@
    "label": "Ä"
   },
   {
+   "cp": 197,
+   "name": "uni00C5",
+   "label": "Å"
+  },
+  {
    "cp": 199,
    "name": "uni00C7",
    "label": "Ç"
@@ -759,6 +789,31 @@
    "label": "Ë"
   },
   {
+   "cp": 204,
+   "name": "uni00CC",
+   "label": "Ì"
+  },
+  {
+   "cp": 205,
+   "name": "uni00CD",
+   "label": "Í"
+  },
+  {
+   "cp": 206,
+   "name": "uni00CE",
+   "label": "Î"
+  },
+  {
+   "cp": 207,
+   "name": "uni00CF",
+   "label": "Ï"
+  },
+  {
+   "cp": 209,
+   "name": "uni00D1",
+   "label": "Ñ"
+  },
+  {
    "cp": 210,
    "name": "uni00D2",
    "label": "Ò"
@@ -774,6 +829,11 @@
    "label": "Ô"
   },
   {
+   "cp": 213,
+   "name": "uni00D5",
+   "label": "Õ"
+  },
+  {
    "cp": 214,
    "name": "uni00D6",
    "label": "Ö"
@@ -782,6 +842,11 @@
    "cp": 215,
    "name": "uni00D7",
    "label": "×"
+  },
+  {
+   "cp": 216,
+   "name": "uni00D8",
+   "label": "Ø"
   },
   {
    "cp": 217,
@@ -802,6 +867,11 @@
    "cp": 220,
    "name": "uni00DC",
    "label": "Ü"
+  },
+  {
+   "cp": 221,
+   "name": "uni00DD",
+   "label": "Ý"
   },
   {
    "cp": 224,
@@ -827,6 +897,11 @@
    "cp": 228,
    "name": "uni00E4",
    "label": "ä"
+  },
+  {
+   "cp": 229,
+   "name": "uni00E5",
+   "label": "å"
   },
   {
    "cp": 231,
@@ -909,6 +984,11 @@
    "label": "÷"
   },
   {
+   "cp": 248,
+   "name": "uni00F8",
+   "label": "ø"
+  },
+  {
    "cp": 249,
    "name": "uni00F9",
    "label": "ù"
@@ -939,6 +1019,11 @@
    "label": "ÿ"
   },
   {
+   "cp": 376,
+   "name": "uni0178",
+   "label": "Ÿ"
+  },
+  {
    "cp": 8211,
    "name": "uni2013",
    "label": "–"
@@ -952,6 +1037,11 @@
    "cp": 8226,
    "name": "uni2022",
    "label": "•"
+  },
+  {
+   "cp": 8230,
+   "name": "uni2026",
+   "label": "…"
   },
   {
    "cp": 8249,

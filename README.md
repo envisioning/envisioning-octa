@@ -16,8 +16,10 @@ The two are independent: widening does not thin the stems, and weight does not
 change the proportions. The tool's own default (stroke 18) sits at about
 `wght` 670, between SemiBold and Bold.
 
-154 glyphs: Latin upper and lower case, digits, punctuation, currency, and the
-accented set the source covers. No pound sign, since it has no outline upstream yet.
+172 glyphs. Portuguese, Spanish, French and German are covered in both cases,
+plus the Nordic A-ring and O-slash. The accented capitals the source never drew
+are composed from its own parts; see AGENTS.md. Still to draw: AE, OE, eszett,
+thorn, eth, S-caron, Z-caron and the pound sign.
 
 ## Install on macOS
 

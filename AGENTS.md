@@ -75,6 +75,30 @@ download buttons serve. `glyphs.json` drives the glyph grid, the axis ramps and
 the instance counts in the page copy, so the page follows the font instead of
 hardcoding it. The page lives at `app/about/brand/octa/`.
 
+## Derived glyphs
+
+`src/derive_glyphs.py` adds the glyphs the upstream drawings never included.
+The source draws every lowercase accent but stops partway through the
+uppercase ones, so N-tilde, O-tilde and the accented I were missing while
+their lowercase existed, and caps in Spanish or Portuguese fell back to
+another face mid-word.
+
+Everything there is composed from parts the source already contains, using the
+same base-plus-mark pattern it uses for the accented glyphs it did draw.
+`extract.js` exports the bare component entries (`up_tilde`, `up_acute`, ...)
+alongside the `cNNN` glyphs so this is possible. Marks are centred on the base
+by shifting along x and snapping to 5 units, matching the source's own `move`
+offsets.
+
+Two entries go past pure assembly and are worth a designer's eye: the ring on
+A-ring reuses the degree sign and sits closer to the letter than other marks
+because it is twice their height, and O-slash is a single stroke across the
+bowl's diagonal. The typographic quotes are cmap aliases onto the straight
+quotes, not drawn curly quotes.
+
+Not derivable, still needing real letterforms: AE, OE, eszett, thorn, eth,
+S-caron, Z-caron, and the pound sign (`c163` is an empty path list upstream).
+
 ## Traps
 
 - `c163` (£) has an empty path list upstream and is skipped, so the font has no

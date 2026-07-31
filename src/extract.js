@@ -18,33 +18,39 @@ vm.runInContext(code + "\n;globalThis.__out = { evSans, defaultGap };", sandbox)
 const { evSans, defaultGap } = sandbox.__out;
 
 const glyphs = {};
+const components = {};
+
 for (const code_ in evSans.chars) {
   const c = evSans.chars[code_];
 
-  // Only cNNN entries map to a codepoint. Bare names (ci, low_grave, ...) are
-  // components that have already been resolved into the paths above.
-  const m = /^c(\d+)$/.exec(code_);
-  if (!m) continue;
-
-  // Import placeholders are removed with `delete arr[i]`, leaving holes.
-  const paths = c.paths
+  const paths_ = c.paths
     .filter((p) => Array.isArray(p) && p.length > 0)
     .map((p) => p.map((pt) => [pt.ix, pt.iy]));
 
-  if (paths.length === 0) continue; // e.g. c163 (£) has no outline yet
+  // Only cNNN entries map to a codepoint. Bare names (ci, up_tilde, ...) are
+  // the accent marks and part-letters the source composes from. They are
+  // exported too, so the builder can compose the accented glyphs upstream
+  // never drew.
+  const m = /^c(\d+)$/.exec(code_);
+  if (!m) {
+    if (paths_.length) components[code_] = { paths: paths_ };
+    continue;
+  }
+
+  if (paths_.length === 0) continue; // e.g. c163 (£) has no outline yet
 
   glyphs[code_] = {
     codepoint: parseInt(m[1], 10),
     label: c.char,
     voids: c.voids || [],
-    paths,
+    paths: paths_,
     defaultWidth: c.defaultWidth,
   };
 }
 
 process.stdout.write(
   JSON.stringify(
-    { defaultGap, kerning: evSans.kearning, glyphs },
+    { defaultGap, kerning: evSans.kearning, glyphs, components },
     null,
     2
   ) + "\n"

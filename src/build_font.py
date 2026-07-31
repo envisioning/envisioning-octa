@@ -27,6 +27,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import sys
 from dataclasses import dataclass
 
 from fontTools.designspaceLib import AxisDescriptor, DesignSpaceDocument, SourceDescriptor
@@ -37,6 +38,9 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables._g_l_y_f import flagOverlapSimple
 from fontTools.varLib import build as build_variable
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from derive_glyphs import ALIASES, derive  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -286,6 +290,11 @@ def build_master(data: dict, master: Master, order: list, path: str) -> None:
     for name, code in order:
         cmap[data["glyphs"][code]["codepoint"]] = name
 
+    # Typographic quotes point at the straight ones rather than at nothing.
+    for alias, target in ALIASES.items():
+        if f"c{target}" in data["glyphs"]:
+            cmap[alias] = glyph_name(target, "")
+
     style = style_name(master.wght, master.wdth)
     fb = FontBuilder(UPEM, isTTF=True)
     fb.setupGlyphOrder(glyph_order)
@@ -353,6 +362,9 @@ def main() -> None:
 
     with open(os.path.join(BUILD, "skeletons.json")) as fp:
         data = json.load(fp)
+
+    derived = derive(data)
+    print(f"derived {derived} glyphs the source did not draw")
 
     order = sorted(
         ((glyph_name(g["codepoint"], g["label"]), code) for code, g in data["glyphs"].items()),
