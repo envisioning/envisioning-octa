@@ -57,12 +57,12 @@ suites. Everything is regenerated, so `dist/` is safe to delete.
 ## Publishing to envisioning.com
 
 The site does not consume this repo as a package. Four files are copied by hand
-into `~/Dev/envisioning/envisioning.com`, and all four have to move together or
+into `~/Dev/Envisioning/www`, and all four have to move together or
 the page will describe a font it is not serving:
 
 ```bash
-OCTA=~/Dev/envisioning-octa
-SITE=~/Dev/envisioning/envisioning.com
+OCTA=~/Dev/Envisioning/envisioning-octa
+SITE=~/Dev/Envisioning/www
 cp $OCTA/dist/EnvisioningOcta-VF.woff2 $SITE/app/fonts/
 cp $OCTA/dist/EnvisioningOcta-VF.woff2 $OCTA/dist/EnvisioningOcta-VF.ttf $SITE/public/fonts/
 cp $OCTA/dist/glyphs.json $SITE/app/about/brand/octa/glyphs.json
