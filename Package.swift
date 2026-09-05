@@ -14,6 +14,9 @@ let package = Package(
         .target(
             name: "EnvisioningOcta",
             path: ".",
+            // "build" is gitignored output, but the directory itself is kept in git
+            // (build/.gitkeep): SwiftPM warns "Invalid Exclude ... File not found"
+            // for an exclude that does not exist, and a fresh checkout has no build/.
             exclude: ["build", "src", "build.sh", "README.md", "AGENTS.md", "CLAUDE.md", "dist/static",
                       "dist/index.html", "dist/glyphs.json", "dist/EnvisioningOcta-VF.woff2"],
             sources: ["Sources"],
